@@ -18,6 +18,7 @@ public class Main {
     URL url = new URL(System.getProperty("tree.url", DEFAULT_URL));
     SkillTreeParser parser = new SkillTreeParser();
     SkillTree tree = parser.parse(url);
+
     List<Node> nodes = tree.getNodes();
     Node node = nodes.get(0);
     Iterable<Node> edges = tree.getEdges(nodes.get(0));
