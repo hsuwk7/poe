@@ -1,6 +1,9 @@
 package net.faintedge.poe;
 
+import net.faintedge.poe.build.Build;
+import net.faintedge.poe.build.BuildParser;
 import net.faintedge.poe.skilltree.Node;
+import net.faintedge.poe.skilltree.SkillTree;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -17,13 +20,14 @@ import java.util.List;
  */
 public class OptiFrame extends JFrame {
     JTextField output,input,search;
-    String t;
+    SkillTree tree;
     JPanel topleft,bottomleft, topright,bottomright,right, left,top;
     JButton add,oButton,removeButton,inputButton;
     JList addedNodes,keystoneSuggestBox;
     DefaultListModel aModel,ksbModel;
     List<Node> nodes;
     ArrayList<Node> matches;
+    int lastIndex;
     ArrayList<String> added;
     @Override
     public void paint(Graphics g) {
@@ -43,10 +47,11 @@ public class OptiFrame extends JFrame {
         //pack();
     }
 
-    public OptiFrame(String s, List<Node> n) {
+    public OptiFrame(String s, List<Node> n,SkillTree t) {
         super(s);
-        t = "";
         nodes = n;
+        tree = t;
+        lastIndex = 0;
         top = new JPanel();
         topleft = new JPanel();
         bottomleft = new JPanel();
@@ -122,7 +127,6 @@ public class OptiFrame extends JFrame {
 
             public void keyTyped(KeyEvent e) {
                 ksbModel.removeAllElements();
-                t = e.getKeyChar()+"";
                 if(e.getKeyChar()=='\n'){
                     //System.out.println("enter");
                     //System.out.println("set "+matches.size()+" "+typed);
@@ -139,7 +143,7 @@ public class OptiFrame extends JFrame {
                         }
                     }
                     if(!ksbModel.isEmpty()){
-                        keystoneSuggestBox.setSelectedIndex(0);
+                        keystoneSuggestBox.setSelectedIndex(lastIndex);
                     }
                     keystoneSuggestBox.repaint();
                 }
@@ -154,16 +158,33 @@ public class OptiFrame extends JFrame {
 
             }
         });
+        inputButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                Build ib = BuildParser.parseBuild(tree, input.getText());
+                List<Node> tn= tree.getNodes();
+                for(Node n: tn){
+                    if(n.isKeystone()) {
+                        aModel.addElement(n.getName());
+                    }
+                }
+            }
+        });
         output.addActionListener(new ActionListener(){
                                      public void actionPerformed(ActionEvent e){
                                          highlight();
                                      }
                                  }
         );
+        removeButton.addActionListener(new ActionListener() {
+                                  public void actionPerformed(ActionEvent e) {
+                                          aModel.removeElementAt(addedNodes.getSelectedIndex());
+                                  }
+                              });
         add.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
                 //System.out.println();
                 if(!aModel.contains((String)keystoneSuggestBox.getSelectedValue())) {
+                    lastIndex = keystoneSuggestBox.getSelectedIndex();
                     aModel.addElement((String) keystoneSuggestBox.getSelectedValue());
                     repaint();
                 }
@@ -201,7 +222,7 @@ public class OptiFrame extends JFrame {
             }
         }
         if(!ksbModel.isEmpty()){
-            keystoneSuggestBox.setSelectedIndex(0);
+            keystoneSuggestBox.setSelectedIndex(lastIndex);
         }
 
     }

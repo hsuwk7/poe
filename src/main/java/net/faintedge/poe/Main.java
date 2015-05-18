@@ -29,7 +29,7 @@ public class Main {
     nodes = tree.getNodes();
 
     //gui
-    frame = new OptiFrame("opti",nodes);
+    frame = new OptiFrame("opti",nodes,tree);
     frame.setSize(900, 900);
     //frame.pack();
     frame.setVisible(true);

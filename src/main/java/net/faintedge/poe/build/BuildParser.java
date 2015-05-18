@@ -8,6 +8,7 @@ import com.google.common.primitives.Shorts;
 import net.faintedge.poe.skilltree.Node;
 import net.faintedge.poe.skilltree.SkillTree;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class BuildParser {
     .put(6, "SIX")
     .build();
 
-  public Build parseBuild(SkillTree tree, String buildString) {
+  public static Build parseBuild(SkillTree tree, String buildString) {
     int si = buildString.indexOf("skill-tree/");
     buildString = buildString.substring((si>0)?si+11:0);
     buildString = buildString.replace("-", "+").replace("_", "/");
@@ -55,11 +56,19 @@ public class BuildParser {
     short charNodeId = nodeIds.remove(charNodeIndex);
     nodeIds.add(0, charNodeId);
 
-    return new Build(charType, nodeIds);
+    List<Node> nodes = new ArrayList<Node>();
+    for(short s:nodeIds){
+      nodes.add(tree.getNode((int)s));
+    }
+    return new Build(charType, nodes);
   }
 
-  public String toBuildString(SkillTree tree, Build build) {
-    List<Short> nodeIds = build.getNodes();
+  public static String toBuildString(SkillTree tree, Build build) {
+    List<Short> nodeIds = new ArrayList<Short>();
+    List<Node> b = build.getNodes();
+    for(Node n: b){
+      nodeIds.add((short)n.getId());
+    }
     short charType = build.getCharacterType();
 
     byte[] bytes = new byte[6 + (nodeIds.size() - 1) * 2];
@@ -81,7 +90,7 @@ public class BuildParser {
     return "http://www.pathofexile.com/passive-skill-tree/"+BaseEncoding.base64().encode(bytes).replace("/", "_").replace("+", "-");
   }
 
-  private boolean isCharNode(Node node, int charType) {
+  private static boolean isCharNode(Node node, int charType) {
     return CHAR_TYPE_TO_NAME.get(charType).equalsIgnoreCase(node.getDescription());
   }
 }
