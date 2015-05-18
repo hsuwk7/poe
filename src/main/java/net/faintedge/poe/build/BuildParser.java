@@ -27,6 +27,8 @@ public class BuildParser {
     .build();
 
   public Build parseBuild(SkillTree tree, String buildString) {
+    int si = buildString.indexOf("skill-tree/");
+    buildString = buildString.substring((si>0)?si+11:0);
     buildString = buildString.replace("-", "+").replace("_", "/");
     byte[] bytes = BaseEncoding.base64().decode(buildString);
     short charType = bytes[4];
@@ -76,7 +78,7 @@ public class BuildParser {
         bytes[i++] = nodeIdBytes[0];
       }
     }
-    return BaseEncoding.base64().encode(bytes).replace("/", "_").replace("+", "-");
+    return "http://www.pathofexile.com/passive-skill-tree/"+BaseEncoding.base64().encode(bytes).replace("/", "_").replace("+", "-");
   }
 
   private boolean isCharNode(Node node, int charType) {
